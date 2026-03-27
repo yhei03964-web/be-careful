@@ -1,0 +1,288 @@
+<html>
+<body style="margin:0; background:black; overflow:hidden;">
+
+<!-- 🎵 背景音乐 -->
+<audio id="bgm" src="bgm1.mp3" loop></audio>
+
+<!-- 🎧 突然音效 -->
+<audio id="sfx" src="scare.mp3"></audio>
+
+<!-- 👻 闪屏 -->
+<div id="flash" style="
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:white;
+opacity:0;
+pointer-events:none;
+z-index:999;
+"></div>
+
+<!-- 🎬 崩溃层 -->
+<div id="glitch" style="
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+color:red;
+font-size:30px;
+display:none;
+z-index:1000;
+background:black;
+"></div>
+
+<!-- 背景 -->
+<img src="bg.jpg" style="
+position:absolute;
+width:100%;
+height:100%;
+object-fit:cover;
+">
+
+<!-- 人物 -->
+<img id="img" src="dong.jpg"
+style="
+position:absolute;
+bottom:80px;
+left:50%;
+transform:translateX(-50%);
+width:350px;
+transition: all 0.2s;
+">
+
+<!-- 对话框 -->
+<div style="
+position:absolute;
+bottom:0;
+width:100%;
+background:rgba(0,0,0,0.7);
+color:white;
+padding:20px;
+">
+
+<h2 id="text">你好，欢迎来到这里，是否进入游戏</h2>
+
+<div id="buttons">
+<button onclick="choose('yes')">是</button>
+<button onclick="choose('no')">否</button>
+</div>
+
+<br>
+🎚 音量：
+<input type="range" min="0" max="1" step="0.1" value="0.5"
+oninput="changeVolume(this.value)">
+
+</div>
+
+<script>
+let step = 0;
+
+// 🎵 音量
+function changeVolume(v){
+document.getElementById("bgm").volume = v;
+}
+
+// 🎼 切换音乐
+function changeBGM(src){
+let bgm = document.getElementById("bgm");
+bgm.pause();
+bgm.src = src;
+bgm.play();
+}
+
+// 🎧 突然音效
+function playScare(){
+document.getElementById("sfx").play();
+}
+
+// 👻 闪屏
+function flashScreen(){
+let f = document.getElementById("flash");
+let c = 0;
+let t = setInterval(()=>{
+f.style.opacity = (f.style.opacity==0)?1:0;
+c++;
+if(c>6){clearInterval(t);f.style.opacity=0;}
+},100);
+}
+
+// 📺 抖动
+function shakeScreen(){
+let img = document.getElementById("img");
+let count = 0;
+let t = setInterval(()=>{
+img.style.transform =
+"translate("+(Math.random()*10-5)+"px,"+(Math.random()*10-5)+"px)";
+count++;
+if(count>20){
+clearInterval(t);
+img.style.transform="translateX(-50%)";
+}
+},50);
+}
+
+// 🎬 崩溃
+function glitchEffect(){
+let g = document.getElementById("glitch");
+g.style.display = "block";
+
+let texts = ["ERROR","WARNING","SYSTEM FAILED","01010101","？？？？"];
+let count = 0;
+
+let t = setInterval(()=>{
+g.innerText = texts[Math.floor(Math.random()*texts.length)];
+count++;
+if(count>20){
+clearInterval(t);
+g.style.display="none";
+}
+},100);
+}
+
+// 打字机（你原来的）
+function typeText(str){
+let i=0;
+text.innerText="";
+let t=setInterval(()=>{
+text.innerText+=str[i];
+i++;
+if(i>=str.length)clearInterval(t);
+},40);
+}
+
+// 淡入（你原来的）
+function fadeIn(src){
+img.style.opacity=0;
+setTimeout(()=>{
+img.src=src;
+img.style.opacity=1;
+},200);
+}
+
+// 🌟 主剧情（完全没改你的文字！只插效果）
+function choose(choice){
+
+if(step===0){
+if(choice==='yes'){
+typeText("你选择进入游戏，欢迎来到这里！");
+fadeIn("dong2.jpg");
+
+changeBGM("bgm1.mp3"); // 🎵 正常音乐
+
+document.getElementById("buttons").innerHTML =
+'<button onclick="choose(\'go\')">继续</button>' +
+'<button onclick="choose(\'leave\')">离开</button>';
+
+step=1;
+}
+
+if(choice==='no'){
+flashScreen();   // 👻 闪
+playScare();     // 🎧 音效
+changeBGM("bgm_horror.mp3"); // 🎵 恐怖音乐
+
+typeText("很遗憾你选择离开，但游戏中此选择并未被允许，抱歉，您触发了危险机制⚠️");
+fadeIn("dong3.jpg");
+
+document.getElementById("buttons").innerHTML =
+'<button onclick="choose(\'force\')">你希望强行退出</button>';
+
+step=10;
+}
+}
+
+else if(step===1){
+if(choice==='go'){
+typeText("你决定相信了他，并选择一起接受接下来的挑战。他看着你，问你——");
+fadeIn("dong4.jpg");
+
+document.getElementById("buttons").innerHTML =
+'<button onclick="choose(\'stay2\')">留在这里守株待兔</button>' +
+'<button onclick="choose(\'maze\')">走出去进入迷宫</button>';
+
+step=20;
+}
+
+if(choice==='leave'){
+typeText("你转身离开，却看见一个男生正盯着一张照片。他的腰间，插着一把刀……");
+fadeIn("dong5.jpg");
+
+document.getElementById("buttons").innerHTML =
+'<button onclick="choose(\'end_leave\')">继续观察</button>';
+
+step=30;
+}
+}
+
+else if(step===20){
+if(choice==='stay2'){
+typeText("你选择留下等待，但空气越来越安静……，就在这时，你发现了他手里有一张照片！");
+fadeIn("d9.jpg");
+
+step=999;
+}
+
+if(choice==='maze'){
+shakeScreen(); // 📺 抖动
+
+typeText("你们两个走进迷宫，脚步声在黑暗中回响…汪东城忽然回头，看向你，笑了一下");
+fadeIn("d10.jpg");
+
+step=999;
+}
+}
+
+else if(step===30){
+glitchEffect(); // 🎬 崩溃
+
+typeText("他突然抬头看向你……");
+fadeIn("d11.jpg");
+
+step=999;
+}
+
+else if(step===10){
+if(choice==='force'){
+flashScreen();
+shakeScreen();
+playScare();
+
+typeText("一睁眼，你发现自己在一个泛着腥臭味的房间里，一个满脸血迹的男人盯着你……");
+fadeIn("dong7.jpg");
+
+document.getElementById("buttons").innerHTML =
+'<button onclick="choose(\'end2\')">发生了什么？</button>';
+
+step=11;
+}
+}
+
+else if(step===11){
+glitchEffect();
+
+typeText("那个人擦掉脸上的血迹，盯着你，低声问：“你杀过人吗？”");
+fadeIn("dong8.jpg");
+
+document.getElementById("buttons").innerHTML =
+'<button onclick="choose(\'end3\')">……</button>';
+
+step=12;
+}
+
+else if(step===12){
+shakeScreen();
+
+typeText("你说不出话，他却又慢慢笑了……");
+fadeIn("d12.jpg");
+
+step=999;
+}
+
+}
+</script>
+
+</body>
+</html>
